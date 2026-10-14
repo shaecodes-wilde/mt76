@@ -44,7 +44,7 @@ int mt7921e_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 	}
 
 	/* Save the rate before TX status bookkeeping clears control.flags. */
-	if (is_mt7922(mdev) &&
+	if ((mt76_chip(mdev) == 0x7961 || is_mt7920(mdev) || is_mt7922(mdev)) &&
 	    !(info->flags & IEEE80211_TX_CTL_HW_80211_ENCAP) &&
 	    (info->flags & IEEE80211_TX_CTL_INJECTED) &&
 	    (info->control.flags & IEEE80211_TX_CTRL_RATE_INJECT) &&
