@@ -19,11 +19,17 @@ The cleaned PCI function was compiled against matching Linux 7.2.5 sources and t
 
 On channel 44, transfers completed in both directions in active-monitor and shared modes. The user confirmed received files opened on the iPhone; incoming files fully decoded on the computer. In shared mode, a 727,402-byte PNG upload took 3.69 seconds and a 2,801,190-byte incoming PNG took 4.16 seconds. These are individual transfer observations, not a performance benchmark.
 
-Wi-Fi stayed associated in shared mode and passed 10/10 ping checks. Teardown restored the original driver, profile, and connection, with another 10/10 ping replies. Ethernet remained the default internet route. The cleaned driver was only loaded temporarily; merging this repository does not install it on the computer.
+Wi-Fi stayed associated in shared mode and passed 10/10 ping checks. Teardown restored the original driver, profile, and connection, with another 10/10 ping replies. Ethernet remained the default internet route. That initial validation loaded the cleaned driver temporarily; merging this repository does not install it automatically.
 
 The 24-case offline regression suite was executed against three source bases: openwrt/mt76 `467ae2e3f190`, verified Linux 7.2.5, and the Linux maintainer mt76 tree at `2e6968e9286f`. Each unpatched baseline failed 11 cases; each patched version passed all 24. The suite exercises actual PCI/status/TXWI routines, stubbing only token allocation and DMA payload construction.
 
 [t4t5 independently reported](https://github.com/t4t5/omdrop-owl/issues/14#issuecomment-6171706287) both transfer directions in both modes on MT7922 `14c3:0616` with the earlier experimental patch. That report does not establish independent testing of this cleaned revision.
+
+## Local adoption after validation
+
+The same cleaned PCI function was subsequently installed on the test computer as DKMS `omdrop-mt7921e/7.2.5-airdrop2`, restricted to `7.2.5-3-omarchy`. Its installed and loaded srcversion both match `D5CFC98B9B40208307ABC3F`. Shared mode and a channel-44 Wi-Fi connection are configured persistently; Ethernet continues to provide internet. A subsequent 727,402-byte outgoing PNG uploaded in 2.63 seconds and opened on the iPhone. Another 63,738-byte JPEG fully decoded on the computer and the phone reported Sent. Wi-Fi passed another 10/10 ping checks. Reboot validation remains pending.
+
+The incoming post-install check also exposed an Omdrop receiver completion issue: it sent HTTP 200 but kept the upload connection open until a 30-second timeout, leaving the phone on Sending. A separate local receiver change explicitly closes successful uploads while retaining delayed-chunk draining; its regression/protocol checks passed, and the next phone transfer reported Sent. That receiver change is separate from the mt76 patch and has not been published upstream.
 
 ## Build and test limits
 
